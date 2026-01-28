@@ -1,0 +1,344 @@
+#Description: miniLEO_Simplified_Perchlorate_Reduction
+#======================SIMULATION=================================
+
+SIMULATION
+  SIMULATION_TYPE SUBSURFACE
+  PROCESS_MODELS
+    SUBSURFACE_FLOW flow
+      MODE GENERAL
+      OPTIONS
+        ISOTHERMAL
+        IMMISCIBLE
+        NO_TEMP_DEPENDENT_DIFFUSION
+      /
+    END
+    SUBSURFACE_TRANSPORT transport
+      MODE GIRT
+      OPTIONS
+        SKIP_RESTART
+      /
+    /
+  /
+
+  CHECKPOINT
+    FORMAT HDF5
+    TIME_UNITS h
+  /
+END
+
+SUBSURFACE
+
+#=========================== fluid properties =================================
+FLUID_PROPERTY
+  PHASE LIQUID
+  DIFFUSION_COEFFICIENT 1.d-9 
+END
+
+FLUID_PROPERTY
+  PHASE GAS
+  DIFFUSION_COEFFICIENT 2.9904d-6 
+END
+
+EOS WATER
+  DENSITY CONSTANT 1250.0d0
+  VISCOSITY CONSTANT 8.904156d-4
+END
+
+EOS GAS
+  DENSITY IDEAL
+  VISCOSITY CONSTANT 1.861598d-5 
+END
+
+#=====================discretization=============================
+GRID
+  TYPE STRUCTURED
+  NXYZ 50 1 50
+  BOUNDS
+    0.d0 0.d0 -1.d0
+    1.d0 1.d0 0.d0
+  /
+END
+
+#========================Chemistry==============================
+CHEMISTRY
+
+  PRIMARY_SPECIES
+    H+    
+    O2(aq)
+    Cl-
+    ClO4-      
+  /
+
+  PASSIVE_GAS_SPECIES
+    O2(g)
+  /
+
+  ACTIVE_GAS_SPECIES
+    GAS_TRANSPORT_IS_UNVETTED 
+    O2(g)
+  /
+
+  IMMOBILE_SPECIES
+    Biomass_Perchlorate
+  /
+
+  MICROBIAL_REACTION
+    REACTION 1.0 ClO4- -> 1.0 Cl- + 2.0 O2(aq) 
+    RATE_CONSTANT 1.d-5         
+    MONOD
+      SPECIES_NAME ClO4-        
+      HALF_SATURATION_CONSTANT 1.d-5 
+    /
+    BIOMASS
+      SPECIES_NAME Biomass_Perchlorate
+      YIELD 0.05d0                
+    /
+  /
+
+  DATABASE ./savannah_river.dat 
+
+  LOG_FORMULATION
+  MAX_RELATIVE_CHANGE_TOLERANCE  1.d-12
+  MAX_RESIDUAL_TOLERANCE  1.d-12
+  UPDATE_POROSITY
+  UPDATE_PERMEABILITY
+ 
+  OUTPUT
+    GASES
+    PRIMARY_SPECIES
+    TOTAL
+    FREE_ION
+    PH
+    TOTAL_SORBED
+	IMMOBILE
+  /
+/
+
+#=========================== solver option ====================================
+TIME  
+  FINAL_TIME 25 day
+  INITIAL_TIMESTEP_SIZE 0.0000001 h
+  MAXIMUM_TIMESTEP_SIZE 24 h
+END
+
+NUMERICAL_METHODS FLOW
+  TIMESTEPPER 
+    PRESSURE_CHANGE_GOVERNOR 1.d8
+    MAX_STEPS 1000000  
+    MAX_TS_CUTS 20   
+    TIMESTEP_MAXIMUM_GROWTH_FACTOR 1.5
+  /
+  NEWTON_SOLVER FLOW
+    MINIMUM_NEWTON_ITERATIONS 1
+  /
+END 
+
+NUMERICAL_METHODS TRANSPORT
+  TIMESTEPPER 
+    MAX_STEPS 1000000 
+    MAX_TS_CUTS 50 
+    TIMESTEP_MAXIMUM_GROWTH_FACTOR 1.5
+  /
+/
+
+#=========================== constraints ======================================
+CONSTRAINT top 
+  CONCENTRATIONS
+    H+              7.35  P
+    O2(aq)          0.2   G  O2(g)
+    Cl-             86.d-6  T
+    ClO4-           1.d-40  T
+  /  
+  IMMOBILE
+    Biomass_Perchlorate 1.d-40 
+  /
+/
+
+CONSTRAINT initial
+  CONCENTRATIONS
+    H+              7.35  P
+    O2(aq)          0.2   G  O2(g)
+    Cl-             86.d-6  T
+    ! Defined aqueous Perchlorate source here since mineral source was removed
+    ClO4-           1.0d-4  T 
+  / 
+  IMMOBILE
+    Biomass_Perchlorate 1.d-6 
+  /
+/
+
+#=========================== REGION =====================================
+REGION all
+  COORDINATES
+    0.d0 0.d0 -1.d0
+    1.d0 1.d0 0.d0
+  /
+/
+
+REGION surface
+  FACE TOP
+  COORDINATES
+    0.d0 0.d0 0.d0
+    1.d0 1.d0 0.d0
+  /
+/
+
+REGION seepage
+  FACE BOTTOM
+  COORDINATES
+    0.d0 0.d0 -1.d0
+    1.d0 1.d0 -1.d0
+  /
+/
+
+#=========================== Flow condition =============================== 
+FLOW_CONDITION gas_vent
+  TYPE
+    GAS_PRESSURE DIRICHLET_SEEPAGE
+    GAS_SATURATION DIRICHLET
+    TEMPERATURE DIRICHLET
+  /
+  GAS_PRESSURE 101325.
+  GAS_SATURATION 1.
+  TEMPERATURE 25.
+/
+
+FLOW_CONDITION recharge
+  TYPE
+    LIQUID_FLUX NEUMANN
+    GAS_FLUX NEUMANN
+    ENERGY_FLUX NEUMANN
+  /
+  LIQUID_FLUX 1.d-2 m/h 
+  GAS_FLUX 0.d0 m/y
+  ENERGY_FLUX 0.d0 MW/m^2
+/
+
+FLOW_CONDITION initial
+  TYPE
+    GAS_PRESSURE DIRICHLET
+    LIQUID_SATURATION DIRICHLET
+    TEMPERATURE DIRICHLET
+  /
+  GAS_PRESSURE 101325.
+  LIQUID_SATURATION 0.1
+  TEMPERATURE 25.
+/
+
+#=========================== Transport condition ===============================
+TRANSPORT_CONDITION initial
+  TYPE DIRICHLET_ZERO_GRADIENT
+  CONSTRAINT_LIST
+    0.0D+0 initial
+  END
+/
+
+TRANSPORT_CONDITION top
+  TYPE DIRICHLET_ZERO_GRADIENT
+  CONSTRAINT_LIST
+    0.0D+0 top
+  END
+END
+
+#=========================== condition couplers ===============================
+INITIAL_CONDITION
+  FLOW_CONDITION initial
+  TRANSPORT_CONDITION initial
+  REGION all
+/
+
+BOUNDARY_CONDITION top_vent
+  FLOW_CONDITION gas_vent
+  TRANSPORT_CONDITION top
+  REGION surface
+/
+
+BOUNDARY_CONDITION bottom
+  FLOW_CONDITION gas_vent
+  TRANSPORT_CONDITION top
+  REGION seepage
+/
+
+BOUNDARY_CONDITION top_recharge
+  FLOW_CONDITION recharge
+  TRANSPORT_CONDITION top
+  REGION surface
+/
+
+#=========================== material properties ==============================
+MATERIAL_PROPERTY Bolitic
+  ID 1
+  CHARACTERISTIC_CURVES sf1
+  POROSITY 0.39
+  PERMEABILITY 
+    PERM_ISO   1.188d-11 
+  /
+  LONGITUDINAL_DISPERSIVITY 0.0458 
+  PERMEABILITY_CRITICAL_POROSITY 0.09 
+  PERMEABILITY_POWER 3.d0 
+  PERMEABILITY_MIN_SCALE_FACTOR 1.15d-10
+  ROCK_DENSITY 2606.56 
+  THERMAL_CONDUCTIVITY_DRY 1.0d0 
+  THERMAL_CONDUCTIVITY_WET 2.0d0 
+  HEAT_CAPACITY 830. 
+/
+
+#=================== characteristic curves ==========================
+CHARACTERISTIC_CURVES sf1
+  SATURATION_FUNCTION VAN_GENUCHTEN
+    M  0.4505494 
+    ALPHA 0.000267
+    LIQUID_RESIDUAL_SATURATION 0.02
+  /
+  PERMEABILITY_FUNCTION MUALEM_VG_LIQ
+    M  0.4505494 
+    LIQUID_RESIDUAL_SATURATION 0.02
+  /
+  PERMEABILITY_FUNCTION MUALEM_VG_GAS
+    LIQUID_RESIDUAL_SATURATION 0.02
+    GAS_RESIDUAL_SATURATION 0.00d0 
+    M  0.4505494 
+  /
+/ 
+
+#========================== Strata couplers ====================================
+STRATA
+  MATERIAL Bolitic
+  REGION all
+/
+
+#========================== output option ======================================
+OUTPUT
+  TIME_UNITS h
+  VELOCITY_AT_CENTER
+    TIMES h 1 2 3 4 5 6 7 8 9 10 24 48 120 240 360 480 600
+    VARIABLES
+      LIQUID_PRESSURE
+      LIQUID_SATURATION
+      GAS_PRESSURE
+      GAS_SATURATION
+      PERMEABILITY
+      POROSITY
+    /
+    FORMAT TECPLOT BLOCK	 
+
+   
+  OBSERVATION_FILE
+    PERIODIC TIMESTEP 1
+    VARIABLES
+      LIQUID_SATURATION
+    /
+  /
+   
+  MASS_BALANCE_FILE
+    PERIODIC TIME 0.5 h
+    TOTAL_MASS_REGIONS
+      all
+      seepage
+      surface
+    /
+    DETAILED
+  /
+/
+
+END_SUBSURFACE
