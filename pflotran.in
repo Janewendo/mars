@@ -1,4 +1,4 @@
-#Description: miniLEO_Simplified_Perchlorate_Reduction
+#Description: miniLEO_Glass_Perchlorate_Salts
 #======================SIMULATION=================================
 
 SIMULATION
@@ -62,20 +62,142 @@ END
 #========================Chemistry==============================
 CHEMISTRY
 
-  PRIMARY_SPECIES
-    H+    
-    O2(aq)
-    Cl-
-    ClO4-      
-  /
-
+ PRIMARY_SPECIES
+	H+    
+	Na+
+	Mg++
+	Ca++
+	NO3-
+	SO4--
+	Fe++
+	K+
+	Al+++
+	SiO2(aq)
+	O2(aq)
+	Cl-
+	Ti(OH)4(aq)
+	HPO4--
+	Mn++
+	CO2(aq)
+	ClO4-      
+ /
+ 
+ SECONDARY_SPECIES
+	Al(OH)2+
+	Al(SO4)2-
+	Al2(OH)2++++
+	AlH2PO4++
+	AlHPO4+
+	AlO2-
+	AlOH++
+	AlSO4+
+	HCO3-
+	CO3--
+	CaCO3(aq)
+	CaCl+
+	CaCl2(aq)
+	CaH2PO4+
+	CaHCO3+
+	CaHPO4(aq)
+	CaNO3+
+	!MgNO3+
+	CaOH+
+	CaP2O7--
+	CaPO4-
+	CaSO4(aq)
+	Fe+++
+	Fe(OH)2(aq)
+	Fe(OH)2+
+	Fe(OH)3(aq)
+	Fe(OH)3-
+	Fe(OH)4-
+	Fe(OH)4--
+	Fe(SO4)2-
+	FeCO3(aq)
+	FeCO3+
+	FeCl+
+	FeCl++
+	FeCl2(aq)
+	FeCl2+
+	FeCl4-
+	FeCl4--
+	FeH2PO4+
+	FeH2PO4++
+	FeHCO3+
+	FeHPO4(aq)
+	FeHPO4+
+	FeNO3++
+	FeOH+
+	FeOH++
+	FePO4-
+	FeSO4(aq)
+	FeSO4+
+	H2P2O7--
+	H2PO4-
+	H2SO4(aq)
+	H2SiO4--
+	H3P2O7-
+	H3PO4(aq)
+	H4P2O7(aq)
+	HAlO2(aq)
+	HCl(aq)
+	HNO3(aq)
+	HP2O7---
+	HSO4-
+	HSiO3-
+	KCl(aq)
+	KHPO4-
+	KHSO4(aq)
+	KOH(aq)
+	KP2O7---
+	KSO4-
+	MgCO3(aq)
+	MgCl+
+	MgH2PO4+
+	MgHCO3+
+	MgHPO4(aq)
+	MgP2O7--
+	MgPO4-
+	MgSO4(aq)
+	Mn(NO3)2(aq)
+	Mn(OH)2(aq)
+	Mn(OH)3-
+	Mn(OH)4--
+	Mn2(OH)3+
+	Mn2OH+++
+	MnCO3(aq)
+	MnCl+
+	MnCl3-
+	MnH2PO4+
+	MnHCO3+
+	MnHPO4(aq)
+	MnNO3+
+	MnOH+
+	MnPO4-
+	MnSO4(aq)
+	Na2P2O7--
+	NaAlO2(aq)
+	NaCO3-
+	NaCl(aq)
+	NaHCO3(aq)
+	NaHP2O7--
+	NaHPO4-
+	NaHSiO3(aq)
+	NaOH(aq)
+	NaP2O7---
+	NaSO4-
+	OH-
+	PO4---
+ /
   PASSIVE_GAS_SPECIES
     O2(g)
+	CO2(g)
   /
 
   ACTIVE_GAS_SPECIES
     GAS_TRANSPORT_IS_UNVETTED 
     O2(g)
+	CO2(g)
   /
 
   IMMOBILE_SPECIES
@@ -95,6 +217,34 @@ CHEMISTRY
     /
   /
 
+  MINERALS
+    Glass_FB
+    Mg(ClO4)2(s)
+    Ca(ClO4)2(s)
+  /
+
+  MINERAL_KINETICS
+    Glass_FB
+      RATE_CONSTANT    -12.6566
+      AFFINITY_THRESHOLD 1.d10
+      SURFACE_AREA_FUNCTION POROSITY_VOLUME_FRACTION_RATIO
+      SURFACE_AREA_POROSITY_POWER 0.667
+      SURFACE_AREA_VOL_FRAC_POWER 0.667
+    /
+    Ca(ClO4)2(s)
+      RATE_CONSTANT -3.0
+      SURFACE_AREA_FUNCTION POROSITY_VOLUME_FRACTION_RATIO
+      SURFACE_AREA_POROSITY_POWER 0.667 
+      SURFACE_AREA_VOL_FRAC_POWER 0.667
+    /
+    Mg(ClO4)2(s)
+      RATE_CONSTANT -3.0
+      SURFACE_AREA_FUNCTION POROSITY_VOLUME_FRACTION_RATIO
+      SURFACE_AREA_POROSITY_POWER 0.667 
+      SURFACE_AREA_VOL_FRAC_POWER 0.667
+    /    
+  /
+
   DATABASE ./savannah_river.dat 
 
   LOG_FORMULATION
@@ -106,6 +256,7 @@ CHEMISTRY
   OUTPUT
     GASES
     PRIMARY_SPECIES
+    MINERALS
     TOTAL
     FREE_ION
     PH
@@ -142,29 +293,59 @@ NUMERICAL_METHODS TRANSPORT
 /
 
 #=========================== constraints ======================================
-CONSTRAINT top 
-  CONCENTRATIONS
-    H+              7.35  P
-    O2(aq)          0.2   G  O2(g)
-    Cl-             86.d-6  T
-    ClO4-           1.d-40  T
-  /  
-  IMMOBILE
-    Biomass_Perchlorate 1.d-40 
-  /
+CONSTRAINT top #same as the rainfall
+ CONCENTRATIONS
+	CO2(aq)  4.054D-4 G   CO2(g) 
+	O2(aq)          0.2  G  O2(g)
+	H+              7.35  P
+	Al+++            1.d-40  T
+	SiO2(aq)         1.d-40  T
+	Fe++             1.d-40    T
+	Na+               3.27521d-7  T  
+	K+                2.2d-8    T
+	Mg++             1.d-40    T 
+	Ca++              1.04d-7    T            
+	NO3-              1.02d-6   T
+	SO4--            15.9d-6  T
+	Cl-               86.d-6  T
+	Ti(OH)4(aq)      1.d-40 T
+	HPO4--          2.3d-6   T
+	Mn++            1.d-40  T
+	ClO4-           1.d-40  T
+ /  
+ IMMOBILE
+ 	Biomass_Perchlorate 1.d-40 mol/L ! concentration
+ /
 /
-
 CONSTRAINT initial
-  CONCENTRATIONS
-    H+              7.35  P
-    O2(aq)          0.2   G  O2(g)
-    Cl-             86.d-6  T
-    ! Defined aqueous Perchlorate source here since mineral source was removed
-    ClO4-           1.0d-4  T 
-  / 
+ !EQUILIBRATE_AT_EACH_CELL
+ CONCENTRATIONS
+	CO2(aq)  4.054D-4 G   CO2(g) 
+	O2(aq)          0.2  G  O2(g)
+	H+               7.35  P
+	Al+++            1.d-40  T
+	SiO2(aq)         1.d-40  T
+	Fe++             1.d-40    T
+	Na+               3.27521d-7  T  
+	K+                2.2d-8    T
+	Mg++             1.d-40    T 
+	Ca++              1.04d-7    T            
+	NO3-              1.02d-6   T
+	SO4--            15.9d-6  T
+	Cl-               86.d-6  T
+	Ti(OH)4(aq)      1.d-40 T
+	HPO4--          2.3d-6   T
+	Mn++            1.d-40  T
+	ClO4-           1.d-40  T
+ / 
   IMMOBILE
-    Biomass_Perchlorate 1.d-6 
-  /
+ 	Biomass_Perchlorate 1.d-6 mol/L ! concentration
+ /
+  MINERALS 
+    Glass_FB        0.356   32000 cm^2/g 
+    Mg(ClO4)2(s)    6.4d-7  32000 cm^2/g 
+    Ca(ClO4)2(s)    9.6d-7  32000 cm^2/g 
+  / 
 /
 
 #=========================== REGION =====================================
@@ -321,7 +502,6 @@ OUTPUT
       POROSITY
     /
     FORMAT TECPLOT BLOCK	 
-
    
   OBSERVATION_FILE
     PERIODIC TIMESTEP 1
