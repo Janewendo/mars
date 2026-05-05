@@ -55,12 +55,14 @@ The total injected time is 100 day. The goal is to remove the perchlrorate solid
   - much thinner atmosphere:                                                                                 
       - GAS_PRESSURE 600 Pa                                                                                                              
   - colder:                                                                                                  
-      - TEMPERATURE -20                                                                                                                     
+      - TEMPERATURE 5 c                                                                                                                     
   - different fluid properties:                                                                              
       - liquid is denser and more viscous in Mars case                                                       
       - gas is much lower density  
-	  - liquid viscosity 2.0d-3 Pa s                                                                        
-      - gas density 0.013d0, gas viscosity 1.3d-5 Pa s   
+	  - liquid viscosity 1.5d-3 Pa s                                                                        
+      - gas density 0.013d0, gas viscosity 1.3d-5 Pa s  
+
+
   - different atmospheric dissolved gases:                                                                   
       - much more CO2(aq), much less O2(aq) 
 	  - CO2(aq) 5.7d-3                                                                                    
