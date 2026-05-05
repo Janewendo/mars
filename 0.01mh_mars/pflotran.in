@@ -47,16 +47,16 @@ END
 
 
 EOS WATER
-  ! Perchlorate brine properties (approx at -20 C)
-  DENSITY CONSTANT 1200.0d0    ! kg/m3, concentrated Ca/Mg perchlorate brine
-  VISCOSITY CONSTANT 2.0d-3    ! Pa*s = 2 cP, colder/saltier than pure water, 8.904156d-4 on earth
+  ! Perchlorate brine properties (approx at 5 C)
+  DENSITY CONSTANT 999.97d0    ! kg/m3, concentrated Ca/Mg perchlorate brine
+  VISCOSITY CONSTANT 1.5d-3    ! Pa*s = 2 cP, colder/saltier than pure water, 8.904156d-4 on earth
   ENTHALPY CONSTANT 2.0d6      ! less important if isothermal
 END
 
 EOS GAS
-  ! Mars CO2 atmosphere properties (approx at 600 Pa / -20 C)
+  ! Mars CO2 atmosphere properties (approx at 600 Pa / 5 C)
   DENSITY CONSTANT 0.013d0     ! kg/m3
-  VISCOSITY CONSTANT 1.3d-5    ! Pa*s Lower viscosity for CO2 at -20 C, 1.861598d-5  on earth
+  VISCOSITY CONSTANT 1.3d-5    ! Pa*s Lower viscosity for CO2 at 5 C, 1.861598d-5  on earth
 END
 #=====================discretization=============================
 GRID
@@ -432,7 +432,7 @@ FLOW_CONDITION gas_vent
   ! This respects the LIQUID_RESIDUAL_SATURATION 0.02 in your soil curve.
   ! It keeps P_capillary finite and prevents P_liquid from going too negative.
   GAS_SATURATION 0.99d0
-  TEMPERATURE -20.
+  TEMPERATURE 5.
 /
 
 FLOW_CONDITION recharge
@@ -454,7 +454,7 @@ FLOW_CONDITION initial
   /
   GAS_PRESSURE 600.d0       ! 600 Pa (0.6 kPa) - Thin atmosphere, earth 101325
   LIQUID_SATURATION 0.01
-  TEMPERATURE -20.
+  TEMPERATURE 5.
 /
 
 #=========================== Transport condition ===============================
@@ -566,7 +566,7 @@ BOUNDARY_CONDITION top_recharge
    TIME_UNITS h
    VELOCITY_AT_CENTER
       TIMES h 1 2 3 4 5
-   PERIODIC TIME 5 h
+   PERIODIC TIME 25 h
      #TIMES h 1 2 3 4 5 6 7 8 9 10 11 12 24 36 48 60 72 84 96 120 240 360 120 240 360 720 1440 2400
 
 	 VARIABLES
