@@ -1,0 +1,706 @@
+#Description: miniLEO
+#======================SIMULATION=================================
+
+ SIMULATION  #为了方便，该模块一般位于代码最顶端
+   SIMULATION_TYPE SUBSURFACE
+   PROCESS_MODELS
+  
+     SUBSURFACE_FLOW flow
+	   MODE GENERAL
+	   OPTIONS
+        ISOTHERMAL
+		IMMISCIBLE
+		NO_TEMP_DEPENDENT_DIFFUSION
+       /
+     END
+	 
+     SUBSURFACE_TRANSPORT transport
+       MODE GIRT
+       OPTIONS
+         SKIP_RESTART
+       /
+     /
+   /
+   
+
+    RESTART
+   	 FILENAME pflotran-presteadystate_restart_1-11.h5
+       RESET_TO_TIME_ZERO
+   /
+   
+   CHECKPOINT
+   	 FORMAT HDF5
+   	 TIME_UNITS h
+      /
+   / 
+   
+
+ END
+ 
+ SUBSURFACE
+#=========================== fluid properties =================================
+FLUID_PROPERTY
+  PHASE LIQUID
+  #DIFFUSION_COEFFICIENT 1.d-40 #assume molecular diffusion = 0
+  DIFFUSION_COEFFICIENT 1.d-9 #5.4d-10 #assume molecular diffusion = 0
+END
+
+FLUID_PROPERTY
+  PHASE GAS
+  DIFFUSION_COEFFICIENT 2.9904d-6 #1.d-5 # m2/s #0.00000173331  #1.53d-5 #O2 2.1d-5 #1.d-40 #need update 
+END
+
+EOS WATER
+#  DENSITY EXPONENTIAL 997.16d0 101325.d0 1.d-8
+  VISCOSITY CONSTANT 8.904156d-4
+END
+EOS GAS
+  DENSITY IDEAL
+  VISCOSITY CONSTANT 1.861598d-5 #8.904156d-4 #9.0829d-6 #
+#  HENRYS_CONSTANT CONSTANT 1.d10
+END
+#=====================discretization=============================
+GRID
+  #TYPE unstructured ./miniLEO_2D.h5
+  TYPE UNSTRUCTURED mesh_rotated10_0.025_ugi.h5
+END
+#========================Chemistry==============================
+CHEMISTRY
+
+ PRIMARY_SPECIES
+	H+    
+	Na+
+	Mg++
+	Ca++
+	NO3-
+	SO4--
+	Fe++
+	K+
+	Al+++
+	SiO2(aq)
+	O2(aq)
+	Cl-
+	Ti(OH)4(aq)
+	HPO4--
+	Mn++
+	!Tracer
+	CO2(aq)
+ /
+ 
+ SECONDARY_SPECIES
+	Al(OH)2+
+	Al(SO4)2-
+	Al2(OH)2++++
+	AlH2PO4++
+	AlHPO4+
+	AlO2-
+	AlOH++
+	AlSO4+
+	HCO3-
+	CO3--
+	CaCO3(aq)
+	CaCl+
+	CaCl2(aq)
+	CaH2PO4+
+	CaHCO3+
+	CaHPO4(aq)
+	CaNO3+
+	!MgNO3+
+	CaOH+
+	CaP2O7--
+	CaPO4-
+	CaSO4(aq)
+	Fe+++
+	Fe(OH)2(aq)
+	Fe(OH)2+
+	Fe(OH)3(aq)
+	Fe(OH)3-
+	Fe(OH)4-
+	Fe(OH)4--
+	Fe(SO4)2-
+	FeCO3(aq)
+	FeCO3+
+	FeCl+
+	FeCl++
+	FeCl2(aq)
+	FeCl2+
+	FeCl4-
+	FeCl4--
+	FeH2PO4+
+	FeH2PO4++
+	FeHCO3+
+	FeHPO4(aq)
+	FeHPO4+
+	FeNO3++
+	FeOH+
+	FeOH++
+	FePO4-
+	FeSO4(aq)
+	FeSO4+
+	H2P2O7--
+	H2PO4-
+	H2SO4(aq)
+	H2SiO4--
+	H3P2O7-
+	H3PO4(aq)
+	H4P2O7(aq)
+	HAlO2(aq)
+	HCl(aq)
+	HNO3(aq)
+	HP2O7---
+	HSO4-
+	HSiO3-
+	KCl(aq)
+	KHPO4-
+	KHSO4(aq)
+	KOH(aq)
+	KP2O7---
+	KSO4-
+	MgCO3(aq)
+	MgCl+
+	MgH2PO4+
+	MgHCO3+
+	MgHPO4(aq)
+	MgP2O7--
+	MgPO4-
+	MgSO4(aq)
+	Mn(NO3)2(aq)
+	Mn(OH)2(aq)
+	Mn(OH)3-
+	Mn(OH)4--
+	Mn2(OH)3+
+	Mn2OH+++
+	MnCO3(aq)
+	MnCl+
+	MnCl3-
+	MnH2PO4+
+	MnHCO3+
+	MnHPO4(aq)
+	MnNO3+
+	MnOH+
+	MnPO4-
+	MnSO4(aq)
+	Na2P2O7--
+	NaAlO2(aq)
+	NaCO3-
+	NaCl(aq)
+	NaHCO3(aq)
+	NaHP2O7--
+	NaHPO4-
+	NaHSiO3(aq)
+	NaOH(aq)
+	NaP2O7---
+	NaSO4-
+	OH-
+	PO4---
+
+
+ /
+ 
+ PASSIVE_GAS_SPECIES
+	O2(g)
+	CO2(g)
+	#H2(g)
+ /
+ 
+ ACTIVE_GAS_SPECIES
+    GAS_TRANSPORT_IS_UNVETTED 
+	CO2(g)
+	O2(g)
+ /
+ 
+ MINERALS
+!------ fictional mineral for calculate CO2 and O2 diffusion process
+    #M(CO2)
+    #M(O2)
+
+!------ primary minerals	
+	Labradorite
+	Diopside_78_FB
+	Olivine
+	Glass_FB
+	!Titanomagnetite_FB	
+!!------ secondary minerals
+!
+!!------Al
+!	Allophane1.26
+!	Allophane2.0
+	Proto-Imogolite
+!	Imogolite
+!	Gibbsite
+!	!Montmor-K
+	Montmor-Mg
+!	!Kaolinite
+!!------Fe	
+!	Goethite
+    Ferrihydrite	
+!	!Hematite
+!
+!!------Mn
+!	MnO2
+	Birnessite-LEO
+!	
+!!------Ca
+!	Calcite	
+	Hydroxylapatite
+!	Mg_calcite_FB
+!	Smectite-Ca
+!	Heulandite_LEO
+!------Si
+	!SiO2(am)
+	!Sepiolite
+ /
+
+ MINERAL_KINETICS
+	Glass_FB
+	RATE_CONSTANT    -12.6566 #
+	AFFINITY_THRESHOLD 1.d10 ##
+	SURFACE_AREA_FUNCTION POROSITY_VOLUME_FRACTION_RATIO
+	SURFACE_AREA_POROSITY_POWER 0.667 ##
+	SURFACE_AREA_VOL_FRAC_POWER 0.667
+	/
+	Labradorite
+	RATE_CONSTANT -11.2863
+	AFFINITY_THRESHOLD 1.d10
+	SURFACE_AREA_FUNCTION POROSITY_VOLUME_FRACTION_RATIO
+	SURFACE_AREA_POROSITY_POWER 0.667 ##
+	SURFACE_AREA_VOL_FRAC_POWER 0.667
+	/
+	Olivine
+	RATE_CONSTANT -10.4830
+	AFFINITY_THRESHOLD 1.d10
+    SURFACE_AREA_FUNCTION POROSITY_VOLUME_FRACTION_RATIO
+	SURFACE_AREA_POROSITY_POWER 0.667 ##
+	SURFACE_AREA_VOL_FRAC_POWER 0.667
+	/	
+	Diopside_78_FB
+	RATE_CONSTANT -15.5531
+	AFFINITY_THRESHOLD 1.d10
+    SURFACE_AREA_FUNCTION POROSITY_VOLUME_FRACTION_RATIO
+	SURFACE_AREA_POROSITY_POWER 0.667 ##
+	SURFACE_AREA_VOL_FRAC_POWER 0.667
+	/	
+	
+!!-------secondary	
+	Proto-Imogolite
+	RATE_CONSTANT -11.9594 #-14.1487 #13 #-9.8487 #-9.42
+	SURFACE_AREA_FUNCTION POROSITY_RATIO 
+	SURFACE_AREA_POROSITY_POWER 0.667
+	!AFFINITY_THRESHOLD 1.d0
+	!RATE_LIMITER 2
+	/
+	
+	Ferrihydrite 
+	RATE_CONSTANT -3.4476 #-9.49154 #6 #5.69154     	
+	SURFACE_AREA_FUNCTION POROSITY_RATIO 
+	SURFACE_AREA_POROSITY_POWER 0.667
+	!AFFINITY_THRESHOLD 1.d0
+	!RATE_LIMITER 2
+	/
+
+	Birnessite-LEO
+	RATE_CONSTANT -86.4334 #1.68 # 
+	SURFACE_AREA_FUNCTION POROSITY_RATIO 
+	SURFACE_AREA_POROSITY_POWER 0.667
+	!AFFINITY_THRESHOLD 1.d10	
+	!RATE_LIMITER 2
+	/
+	
+	!Calcite
+	!RATE_CONSTANT -8.61 #-0.081 #
+	!SURFACE_AREA_FUNCTION POROSITY_RATIO 
+	!SURFACE_AREA_POROSITY_POWER 0.667
+	!!RATE_LIMITER 2
+	!/
+
+	Montmor-Mg
+	RATE_CONSTANT -3.2599 #-0.081 #
+	SURFACE_AREA_FUNCTION POROSITY_RATIO 
+	SURFACE_AREA_POROSITY_POWER 0.667
+	!RATE_LIMITER 2	
+	/
+
+	Hydroxylapatite
+	RATE_CONSTANT -11.6445 #-19.4306  #-6
+	SURFACE_AREA_FUNCTION POROSITY_RATIO 
+	SURFACE_AREA_POROSITY_POWER 0.667
+	!RATE_LIMITER 2
+	/	
+
+	!SiO2(am)
+	!RATE_CONSTANT -2.31  #-12.31
+	!SURFACE_AREA_FUNCTION POROSITY_RATIO 
+	!SURFACE_AREA_POROSITY_POWER 0.667
+	!/
+ /
+
+
+ DATABASE ./savannah_river.dat #define compositon and Keq
+
+ LOG_FORMULATION
+ !MAX_DLNC 10
+ MAX_RELATIVE_CHANGE_TOLERANCE  1.d-12
+ MAX_RESIDUAL_TOLERANCE  1.d-12
+ !ACTIVITY_COEFFICIENTS NEWTON NEWTON_ITERATION
+ !MOLAL, MOLALITY
+ UPDATE_POROSITY
+ UPDATE_PERMEABILITY
+ 
+ OUTPUT
+	GASES
+	PRIMARY_SPECIES
+	SECONDARY_SPECIES
+	MINERALS
+	MINERAL_SATURATION_INDEX
+	MINERAL_SURFACE_AREA
+	TOTAL
+	FREE_ION
+	PH
+	!ACTIVITY_COEFFICIENTS
+	TOTAL_SORBED
+	KD
+	!SITE_DENSITY
+	TOTAL_SORBED_MOBILE
+	#COLLOIDS
+ /
+ 
+/
+#=========================== solver option ====================================
+ TIME  # total simulation length, the unit can be in h or y 
+   !FINAL_TIME 14400 h !600 day 
+   FINAL_TIME 70 day # 70 day
+   !FINAL_TIME 38 day !38 day
+  # initial time step size, it could be reduced or increased automatically
+  # by the program for accuracy purpose
+   INITIAL_TIMESTEP_SIZE 0.0000001  h
+  # maximum time step that can not be exceeded
+   MAXIMUM_TIMESTEP_SIZE 24 h
+ END
+
+NUMERICAL_METHODS FLOW
+ TIMESTEPPER 
+   PRESSURE_CHANGE_GOVERNOR 1.d8
+   !TS_ACCELERATION 8
+   MAX_STEPS 1000000  ! terminates simulation after 10,000 time steps
+   MAX_TS_CUTS 20   ! terminates simulation after 20 consecutive time step cuts
+   TIMESTEP_MAXIMUM_GROWTH_FACTOR 1.5
+ /
+ 
+ NEWTON_SOLVER FLOW
+  MINIMUM_NEWTON_ITERATIONS 1
+ /
+
+ 
+END 
+
+NUMERICAL_METHODS TRANSPORT
+ TIMESTEPPER 
+   !TS_ACCELERATION 8
+   MAX_STEPS 1000000  ! terminates simulation after 10,000 time steps
+   MAX_TS_CUTS 50   ! terminates simulation after 50 consecutive time step cuts
+   TIMESTEP_MAXIMUM_GROWTH_FACTOR 1.5
+ /
+ /
+#END
+
+#=========================== constraints ======================================
+CONSTRAINT top #same as the rainfall
+ CONCENTRATIONS
+	#HCO3-              6.41d-5  T 
+	CO2(aq)  4.054D-4 G   CO2(g) 
+	#CO2(aq)  1.6997D-4 G   CO2(g) 
+	O2(aq)          0.2  G  O2(g)
+	!O2(aq)          1.d-40  T
+	H+              7.35  P
+	Al+++            1.d-40  T
+	SiO2(aq)         1.d-40  T
+	Fe++             1.d-40    T
+	Na+               3.27521d-7  T  
+	K+                2.2d-8    T
+	Mg++             1.d-40    T #6.2d-8  T
+	Ca++              1.04d-7    T            
+	NO3-              1.02d-6   T
+	SO4--            15.9d-6  T
+	Cl-               86.d-6  T
+	Ti(OH)4(aq)      1.d-40 T
+	HPO4--          2.3d-6   T
+	Mn++            1.d-40  T
+	!Tracer          1.  T
+ / 
+
+/
+CONSTRAINT initial
+ !EQUILIBRATE_AT_EACH_CELL
+ CONCENTRATIONS
+	#HCO3-              6.41d-5  T
+	CO2(aq)  4.054D-4 G   CO2(g) 
+	#CO2(aq)  1.6997D-4 G   CO2(g) 
+	!O2(aq)          1.d-40  T
+	O2(aq)          0.2  G  O2(g)
+	H+               7.35  P
+	Al+++            1.d-40  T
+	SiO2(aq)         1.d-40  T
+	Fe++             1.d-40    T
+	Na+               3.27521d-7  T  
+	K+                2.2d-8    T
+	Mg++             1.d-40    T #6.2d-8  T
+	Ca++              1.04d-7    T            
+	NO3-              1.02d-6   T
+	SO4--            15.9d-6  T
+	Cl-               86.d-6  T
+	Ti(OH)4(aq)      1.d-40 T
+	HPO4--          2.3d-6   T
+	Mn++            1.d-40  T
+	!Tracer          1.  T
+ / 
+ 
+ MINERALS 
+!------ primary minerals 
+	Labradorite  0.144 5.2d2  !0.92*0.0005 m^2/g
+	Diopside_78_FB  0.033 6.d2  !0.92*0.0005 m^2/g
+	Olivine  0.077 3.07d2 !0.92*0.0005 m^2/g
+	Glass_FB  0.356  32000 cm^2/g !3.2 m^2/g 0.353=0.578*(1-0.39)
+	
+!	!------Al
+!	Allophane1.26 1.d-20  8.d6  cm^2/g  !hardly to obtain rate constant, so fix the SSA and then adjust k to match the 
+!	Allophane2.0 1.d-20  8.d6  cm^2/g 
+	Proto-Imogolite   1.d-10  9.d6 cm^2/g
+!	Imogolite 1.d-20  1.1d7  cm^2/g
+!	Gibbsite 1.d-10  24.9d4 cm^2/g
+!	!Montmor-K 1.d-10 50.d4 cm^2/g
+!	!Montmor-Mg 1.d-10 50.d4 cm^2/g
+!	!Kaolinite 1.d-10 5.d4 cm^2/g
+!
+!!------Si
+!	SiO2(am)	1.d-5 1.d5  cm^2/g
+
+!!------Fe	
+!	Goethite  1.d-10 80.d4 cm^2/g
+    Ferrihydrite   1.d-10  2.d8 cm^2/g
+!	!Hematite   1.d-10 6.1d4 cm^2/g
+!
+!!------Mn
+!	MnO2   1.d-20  1.87d5 cm^2/g
+	Birnessite-LEO  1.d-10  48.5d4 cm^2/g
+!	
+!!------Ca
+!	Calcite	4.d-7 4.d4 cm^2/g
+!	Mg_calcite_FB	1.d-6 4.d4 cm^2/g
+!	Smectite-Ca 4.d-7 3.d6 cm^2/g
+!	Sepiolite 1.d-10  2.1d6 cm^2/g
+	Hydroxylapatite   1.d-10 6.5d1 cm^2/g
+	Montmor-Mg 1.d-10 4.5d6 cm^2/g
+!	Heulandite_LEO 1.d-10 1.2d6 cm^2/g
+
+ / 
+/
+#=========================== REGION =====================================
+#非结构化网格不能使用face_id和cell_id定义面
+ REGION all
+   INFINITE
+ /
+  
+ REGION surface
+   FILE mesh_ugi_top.ss
+ /
+  
+ REGION seepage
+   FILE mesh_ugi_east.ss
+ /
+
+
+#=========================== Flow condition =============================== 
+FLOW_CONDITION gas_vent
+  TYPE
+    GAS_PRESSURE DIRICHLET_SEEPAGE
+    GAS_SATURATION DIRICHLET
+    TEMPERATURE DIRICHLET
+  /
+  GAS_PRESSURE 101325.
+  GAS_SATURATION 1.
+  TEMPERATURE 25.
+/
+
+FLOW_CONDITION recharge
+  TYPE
+    LIQUID_FLUX NEUMANN
+    GAS_FLUX NEUMANN
+    ENERGY_FLUX NEUMANN
+  /
+  LIQUID_FLUX 1.76557d-5 m/h #
+  GAS_FLUX 0.d0 m/y
+  ENERGY_FLUX 0.d0 MW/m^2
+/
+
+FLOW_CONDITION initial
+  TYPE
+    GAS_PRESSURE DIRICHLET
+    LIQUID_SATURATION DIRICHLET
+    TEMPERATURE DIRICHLET
+  /
+  GAS_PRESSURE 101325.
+  LIQUID_SATURATION 0.1
+  TEMPERATURE 25.
+/
+
+#=========================== Transport condition ===============================
+TRANSPORT_CONDITION initial
+  TYPE DIRICHLET_ZERO_GRADIENT
+  CONSTRAINT_LIST
+    0.0D+0 initial
+  END
+/
+
+TRANSPORT_CONDITION top
+  TYPE DIRICHLET_ZERO_GRADIENT
+  CONSTRAINT_LIST
+    0.0D+0 top
+  END
+END
+#=========================== condition couplers ===============================
+#============== Initial condition ==============
+
+INITIAL_CONDITION
+  FLOW_CONDITION initial
+  TRANSPORT_CONDITION initial
+  REGION all
+/
+
+#skip
+BOUNDARY_CONDITION top_vent
+  FLOW_CONDITION gas_vent
+  TRANSPORT_CONDITION top
+  REGION surface
+/
+#noskip
+
+BOUNDARY_CONDITION east
+  FLOW_CONDITION gas_vent
+  TRANSPORT_CONDITION top
+  REGION seepage
+/
+
+BOUNDARY_CONDITION top_recharge
+  FLOW_CONDITION recharge
+  TRANSPORT_CONDITION top
+  REGION surface
+/
+
+#=========================== material properties ==============================
+
+  MATERIAL_PROPERTY Bolitic
+   ID 1
+   CHARACTERISTIC_CURVES sf1
+   POROSITY 0.39
+   PERMEABILITY 
+	 PERM_ISO   1.188d-11
+   /
+   LONGITUDINAL_DISPERSIVITY 0.0458 # m calculated by emperical equation
+   #update material property
+   PERMEABILITY_CRITICAL_POROSITY 0.09 ## 80%-90% of the porosity,porosity scales permeability as a function of porosity
+   PERMEABILITY_POWER 3.d0 # experimental
+   PERMEABILITY_MIN_SCALE_FACTOR 1.15d-10
+   ROCK_DENSITY 2606.56 # Rock density = Bulk density/(1-porosity)=1590/(1-0.39)=2606.56 kg/m^3
+   THERMAL_CONDUCTIVITY_DRY 1.0d0 #need update
+   THERMAL_CONDUCTIVITY_WET 2.0d0 #need update
+   HEAT_CAPACITY 830. #need update
+ /
+
+#=================== characterfistic curves （for saturated flow）==============
+ CHARACTERISTIC_CURVES sf1
+   SATURATION_FUNCTION VAN_GENUCHTEN
+     M  0.4505494 #0.466277 
+     ALPHA 0.000267#0.000250911 !25cm capillary fringe #calibrated
+     LIQUID_RESIDUAL_SATURATION 0.02#0.1
+   /
+   PERMEABILITY_FUNCTION MUALEM_VG_LIQ
+     M  0.4505494 #0.466277
+     LIQUID_RESIDUAL_SATURATION 0.02#0.1
+   /
+   PERMEABILITY_FUNCTION MUALEM_VG_GAS
+     LIQUID_RESIDUAL_SATURATION 0.02#0.1
+     GAS_RESIDUAL_SATURATION 0.00d0 # need update
+     M  0.4505494 #0.466277 #need update
+   /
+ / 
+
+#========================== Strata couplers ====================================
+ STRATA
+   MATERIAL Bolitic
+   REGION all
+ /
+
+ 
+#========================== output option ======================================
+
+ OUTPUT
+   TIME_UNITS h
+   VELOCITY_AT_CENTER
+   !PERIODIC TIME 0.5  h
+   #PERIODIC TIMESTEP 1
+   !SNAPSHOT_FILE
+     !TIMES h 806 856 866 886 
+     TIMES h 24 48 120 806 843.5 886 1229 1233 1236 1257 1275.5 1555.5 1611 
+
+	 VARIABLES
+       LIQUID_PRESSURE
+       LIQUID_SATURATION
+	   LIQUID_DENSITY
+	   LIQUID_VISCOSITY
+       LIQUID_MOBILITY
+	   LIQUID_RELATIVE_PERMEABILITY
+       LIQUID_MOLE_FRACTIONS
+       GAS_PRESSURE
+       GAS_SATURATION
+       GAS_DENSITY
+	   GAS_VISCOSITY
+       GAS_MOBILITY
+	   GAS_RELATIVE_PERMEABILITY
+       GAS_MOLE_FRACTIONS
+	   #MAXIMUM_PRESSURE
+       CAPILLARY_PRESSURE
+       #VAPOR_PRESSURE
+       #SATURATION_PRESSURE
+       THERMODYNAMIC_STATE
+       TEMPERATURE
+	   PERMEABILITY
+	   POROSITY
+	   
+	 /
+	 FORMAT TECPLOT BLOCK	 
+!   /
+   
+   
+   OBSERVATION_FILE
+     #PERIODIC TIME 0.5 h
+	 PERIODIC TIMESTEP 1
+	 VARIABLES
+	   LIQUID_SATURATION
+	 /
+   /
+   
+   MASS_BALANCE_FILE
+     PERIODIC TIME 0.5 h
+	 #PERIODIC TIMESTEP 1
+     TOTAL_MASS_REGIONS
+	   all
+	   seepage
+	   surface
+	 /
+     DETAILED
+   /
+ /
+DEBUG
+  #PRINT_SOLUTION
+  #PRINT_RESIDUAL
+  #PRINT_JACOBIAN
+  #PRINT_JACOBIAN_DETAILED
+  #PRINT_JACOBIAN_NORM
+  #PRINT_COUPLERS
+  #PRINT_NUMERICAL_DERIVATIVES
+END 
+ END_SUBSURFACE
+ 
+
+ 
+
